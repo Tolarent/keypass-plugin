@@ -126,14 +126,14 @@ Write-Host ""
 Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
-try {
-    $npmOutput = npm install 2>&1
-    Write-Ok "Dépendances installées"
-} catch {
-    Write-Err "Erreur npm install : $_"
+$npmOutput = npm install 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Err "Erreur npm install (code $LASTEXITCODE)"
+    Write-Host ($npmOutput | Where-Object { $_ -match "error" } | Out-String) -ForegroundColor Red
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 1
 }
+Write-Ok "Dépendances installées"
 
 # ── Étape 4 : Configuration interactive ───────────────────────────────────────
 Write-Host ""
