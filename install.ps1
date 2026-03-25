@@ -126,9 +126,12 @@ Write-Host ""
 Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
-$npmProc = Start-Process "cmd.exe" -ArgumentList "/c npm install --loglevel=silent" -WorkingDirectory $installDir -Wait -PassThru -NoNewWindow
-if ($npmProc.ExitCode -ne 0) {
-    Write-Err "npm install a échoué (code $($npmProc.ExitCode))"
+Push-Location $installDir
+cmd /c "npm install --loglevel=silent"
+$npmExit = $LASTEXITCODE
+Pop-Location
+if ($npmExit -ne 0) {
+    Write-Err "npm install a échoué (code $npmExit)"
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 1
 }
