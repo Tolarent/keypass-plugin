@@ -115,13 +115,12 @@ Write-Host "  OK Fichier .env cree" -ForegroundColor Green
 # -- Etape 5 : Raccourcis --
 Write-Host "  [5/5] Creation des raccourcis..." -ForegroundColor White
 
-$electronExe = "$installDir\node_modules\.bin\electron.cmd"
 $wsh = New-Object -ComObject WScript.Shell
 
 $desktopShortcut = "$env:PUBLIC\Desktop\KeyPass.lnk"
 $sc = $wsh.CreateShortcut($desktopShortcut)
 $sc.TargetPath       = "cmd.exe"
-$sc.Arguments        = "/c `"$electronExe`" `"$installDir`""
+$sc.Arguments        = "/c cd /d `"$installDir`" && npm start"
 $sc.WorkingDirectory = $installDir
 $sc.Description      = "Greffon KeyPass"
 $sc.Save()
@@ -130,7 +129,7 @@ Write-Host "  OK Raccourci Bureau cree" -ForegroundColor Green
 $startupDir = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 $sc2 = $wsh.CreateShortcut("$startupDir\KeyPass.lnk")
 $sc2.TargetPath       = "cmd.exe"
-$sc2.Arguments        = "/c `"$electronExe`" `"$installDir`""
+$sc2.Arguments        = "/c cd /d `"$installDir`" && npm start"
 $sc2.WorkingDirectory = $installDir
 $sc2.Description      = "KeyPass demarrage automatique"
 $sc2.Save()
@@ -150,7 +149,7 @@ Write-Host ""
 $launch = Read-Host "  Lancer le greffon maintenant ? (O/N)"
 if ($launch -match "^[Oo]") {
     Write-Host "  Demarrage..." -ForegroundColor Cyan
-    Start-Process "cmd.exe" -ArgumentList "/c `"$electronExe`" `"$installDir`"" -WorkingDirectory $installDir
+    Start-Process "cmd.exe" -ArgumentList "/c cd /d `"$installDir`" && npm start" -WorkingDirectory $installDir
 }
 
 Write-Host ""
