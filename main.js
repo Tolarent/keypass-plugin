@@ -29,6 +29,10 @@ app.whenReady().then(async () => {
     log.warn('[KeyPass] Serveur inaccessible — mode hors-ligne');
   }
 
+  // Afficher l'overlay immédiatement en mode manuel (sans logiciel hôtel)
+  // Il restera visible en permanence ; la détection automatique le complète si un logiciel est trouvé
+  overlayWin = await overlay.creerOverlay({ name: 'Manuel', adapter: 'generic', exe: null });
+
   // Lancer la détection du logiciel hôtel (toutes les 3 secondes)
   demarrerDetection();
 });

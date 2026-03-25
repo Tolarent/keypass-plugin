@@ -47,8 +47,8 @@ async function creerOverlay(logiciel) {
 
   const win = new BrowserWindow({
     x, y,
-    width:  310,
-    height: 130,
+    width:  620,
+    height: 200,
     transparent:    true,   // Fond transparent
     frame:          false,   // Pas de bordure Windows
     alwaysOnTop:    true,    // Toujours au-dessus du logiciel hôtel
