@@ -127,7 +127,7 @@ Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
 try {
-    $npmOutput = npm install --omit=dev 2>&1
+    $npmOutput = npm install 2>&1
     Write-Ok "Dépendances installées"
 } catch {
     Write-Err "Erreur npm install : $_"
