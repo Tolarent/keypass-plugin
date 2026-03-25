@@ -75,7 +75,12 @@ Expand-Archive -Path $zipPath -DestinationPath $tmpDir -Force
 Remove-Item $zipPath -Force
 
 $extracted = Get-ChildItem $tmpDir | Select-Object -First 1
-if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
+
+# Arreter le greffon s'il tourne encore (electron.exe verrouille les fichiers)
+Get-Process -Name "electron" -ErrorAction SilentlyContinue | Stop-Process -Force
+Start-Sleep -Seconds 2
+
+if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path (Split-Path $installDir) -Force | Out-Null
 Move-Item $extracted.FullName $installDir
 Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
