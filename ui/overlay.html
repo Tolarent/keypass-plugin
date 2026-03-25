@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KeyPass</title>
+  <link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+  <!-- Barre d'en-tête (drag handle) -->
+  <div class="header" id="dragHandle">
+    <span class="logo">Key<span class="gold">Pass</span></span>
+    <span class="logiciel" id="logicielNom">Chargement…</span>
+  </div>
+
+  <!-- Formulaire de réservation (pré-rempli depuis le logiciel hôtel si possible) -->
+  <div class="form" id="form">
+    <div class="row">
+      <div class="field">
+        <label>Chambre</label>
+        <input type="text" id="roomId" placeholder="101" maxlength="6">
+      </div>
+      <div class="field flex-grow">
+        <label>Nom du client</label>
+        <input type="text" id="guestName" placeholder="Jean Dupont">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Arrivée</label>
+        <input type="date" id="checkin">
+      </div>
+      <div class="field">
+        <label>Départ</label>
+        <input type="date" id="checkout">
+      </div>
+      <div class="field">
+        <label>Tél. client</label>
+        <input type="tel" id="guestPhone" placeholder="+33 6 12 34 56 78">
+      </div>
+    </div>
+  </div>
+
+  <!-- Boutons d'action -->
+  <div class="buttons">
+    <button class="btn btn-primary" id="btnIphone" onclick="envoyerIphone()">
+      <span class="icon">📱</span> Envoyer sur iPhone
+    </button>
+    <button class="btn btn-ghost" id="btnQR" onclick="afficherQR()">
+      <span class="icon">⬛</span> Afficher QR Code
+    </button>
+  </div>
+
+  <!-- Message de succès / erreur -->
+  <div class="toast" id="toast" style="display:none"></div>
+
+  <script>
+    // Stub window.keypass si on est hors Electron (aperçu navigateur)
+    if (!window.keypass) {
+      window.keypass = {
+        on: () => {},
+        envoyerCleIphone: async (r) => { await new Promise(res => setTimeout(res, 800)); return { ok: true, emailSent: false }; },
+        afficherQR:       async (r) => { await new Promise(res => setTimeout(res, 800)); return { ok: true }; },
+        revoquerCle:      async ()  => ({ ok: true }),
+      };
+      document.getElementById('logicielNom').textContent = 'Mode manuel';
+    }
+
+    // ── Pré-remplir les dates par défaut ──────────────────────────────────
+    const today    = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    document.getElementById('checkin').value  = today;
+    document.getElementById('checkout').value = tomorrow;
+
+    // ── Recevoir les données du logiciel hôtel ────────────────────────────
+    window.keypass.on('logiciel-info', (info) => {
+      document.getElementById('logicielNom').textContent = info.name;
+    });
+
+    window.keypass.on('nouvelle-reservation', (res) => {
+      if (res.roomId)    document.getElementById('roomId').value    = res.roomId;
+      if (res.guestName) document.getElementById('guestName').value = res.guestName;
+      if (res.checkin)   document.getElementById('checkin').value   = res.checkin;
+      if (res.checkout)  document.getElementById('checkout').value  = res.checkout;
+    });
+
+    window.keypass.on('checkout', ({ token }) => {
+      afficherToast('Révocation de la clé…', 'info');
+      window.keypass.revoquerCle(token).then(() => {
+        afficherToast('✓ Clé révoquée', 'success');
+      });
+    });
+
+    // ── Récupérer les données du formulaire ───────────────────────────────
+    function getReservation() {
+      return {
+        roomId:     document.getElementById('roomId').value.trim(),
+        guestName:  document.getElementById('guestName').value.trim(),
+        guestPhone: document.getElementById('guestPhone').value.trim() || null,
+        checkin:    document.getElementById('checkin').value,
+        checkout:   document.getElementById('checkout').value,
+        zones:      ['Chambre'],
+      };
+    }
+
+    function validerFormulaire() {
+      const r = getReservation();
+      if (!r.roomId || !r.guestName || !r.checkin || !r.checkout) {
+        afficherToast('Remplir chambre, nom, arrivée et départ', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    // ── Envoyer sur iPhone ────────────────────────────────────────────────
+    async function envoyerIphone() {
+      if (!validerFormulaire()) return;
+      setBoutonChargement('btnIphone', true);
+      try {
+        const result = await window.keypass.envoyerCleIphone(getReservation());
+        if (result.ok) {
+          afficherToast('✓ Clé envoyée' + (result.smsSent ? ' par SMS' : ''), 'success');
+        } else {
+          afficherToast('Erreur : ' + (result.error || 'Inconnue'), 'error');
+        }
+      } catch (e) {
+        afficherToast('Serveur inaccessible', 'error');
+      } finally {
+        setBoutonChargement('btnIphone', false);
+      }
+    }
+
+    // ── Afficher QR Code ──────────────────────────────────────────────────
+    async function afficherQR() {
+      if (!validerFormulaire()) return;
+      setBoutonChargement('btnQR', true);
+      try {
+        const result = await window.keypass.afficherQR(getReservation());
+        if (!result.ok) afficherToast('Erreur : ' + (result.error || 'Inconnue'), 'error');
+      } catch (e) {
+        afficherToast('Serveur inaccessible', 'error');
+      } finally {
+        setBoutonChargement('btnQR', false);
+      }
+    }
+
+    // ── Helpers UI ────────────────────────────────────────────────────────
+    function afficherToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className   = `toast toast-${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function setBoutonChargement(id, loading) {
+      const btn = document.getElementById(id);
+      btn.disabled = loading;
+      if (loading) btn.style.opacity = '0.6';
+      else btn.style.opacity = '1';
+    }
+
+    // ── Drag de la fenêtre ────────────────────────────────────────────────
+    // Rend la fenêtre déplaçable via le header
+    const handle = document.getElementById('dragHandle');
+    let isDragging = false, startX, startY;
+    handle.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.screenX;
+      startY = e.screenY;
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      // -webkit-app-region: drag gère cela nativement dans Electron
+    });
+    document.addEventListener('mouseup', () => { isDragging = false; });
+  </script>
+</body>
+</html>

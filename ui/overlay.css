@@ -1,0 +1,181 @@
+/* overlay.css — Style discret aux couleurs KeyPass */
+/* La fenêtre est transparente : seul le contenu est visible */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     rgba(8, 8, 15, 0.95);
+  --border: rgba(212, 175, 55, 0.3);
+  --gold:   #d4af37;
+  --text:   #e8e8ed;
+  --muted:  #6e6e82;
+  --green:  #30d158;
+  --red:    #ff453a;
+  --blue:   #0a84ff;
+  --radius: 12px;
+}
+
+body {
+  background:   transparent;
+  font-family:  -apple-system, 'Segoe UI', sans-serif;
+  font-size:    13px;
+  color:        var(--text);
+  user-select:  none;
+  overflow:     hidden;
+}
+
+/* ── Conteneur principal ── */
+.header {
+  background:     var(--bg);
+  border:         1px solid var(--border);
+  border-radius:  var(--radius) var(--radius) 0 0;
+  padding:        8px 14px;
+  display:        flex;
+  align-items:    center;
+  justify-content: space-between;
+  -webkit-app-region: drag; /* Rend le header draggable nativement */
+  cursor:         move;
+}
+
+.logo {
+  font-size:    14px;
+  font-weight:  700;
+  letter-spacing: 0.5px;
+}
+
+.gold { color: var(--gold); }
+
+.logiciel {
+  font-size:  10px;
+  color:      var(--muted);
+  font-style: italic;
+}
+
+/* ── Formulaire ── */
+.form {
+  background: var(--bg);
+  border:     1px solid var(--border);
+  border-top: none;
+  padding:    10px 14px;
+}
+
+.row {
+  display: flex;
+  gap:     8px;
+  margin-bottom: 8px;
+}
+
+.row:last-child { margin-bottom: 0; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.flex-grow { flex: 1; }
+
+label {
+  font-size:      10px;
+  font-weight:    600;
+  color:          var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input {
+  background:    rgba(255,255,255,0.05);
+  border:        1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding:       5px 8px;
+  color:         var(--text);
+  font-size:     12px;
+  font-family:   inherit;
+  outline:       none;
+  width:         100%;
+  min-width:     0;
+  transition:    border 0.15s;
+}
+
+input:focus {
+  border-color: var(--gold);
+}
+
+input[type=text]  { min-width: 60px; }
+input[type=date]  { min-width: 120px; }
+input[type=email] { min-width: 140px; }
+
+/* ── Boutons ── */
+.buttons {
+  background:     var(--bg);
+  border:         1px solid var(--border);
+  border-top:     none;
+  border-radius:  0 0 var(--radius) var(--radius);
+  padding:        10px 14px;
+  display:        flex;
+  gap:            8px;
+}
+
+.btn {
+  flex:          1;
+  padding:       8px 12px;
+  border-radius: 8px;
+  font-size:     12px;
+  font-weight:   600;
+  cursor:        pointer;
+  transition:    all 0.15s;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           6px;
+  border:        none;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color:      #000;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #f0d060;
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border:     1px solid rgba(255,255,255,0.15);
+  color:      var(--muted);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--gold);
+  color:        var(--gold);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor:  not-allowed;
+}
+
+.icon { font-size: 13px; }
+
+/* ── Toast ── */
+.toast {
+  position:      fixed;
+  bottom:        8px;
+  left:          50%;
+  transform:     translateX(-50%);
+  padding:       7px 16px;
+  border-radius: 20px;
+  font-size:     12px;
+  font-weight:   600;
+  white-space:   nowrap;
+  animation:     fadeIn 0.2s ease;
+  z-index:       999;
+}
+
+.toast-success { background: rgba(48, 209, 88, 0.2);  border: 1px solid rgba(48, 209, 88, 0.4);  color: var(--green); }
+.toast-error   { background: rgba(255, 69, 58, 0.2);  border: 1px solid rgba(255, 69, 58, 0.4);  color: var(--red);   }
+.toast-info    { background: rgba(10, 132, 255, 0.2); border: 1px solid rgba(10, 132, 255, 0.4); color: var(--blue);  }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
