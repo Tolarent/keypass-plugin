@@ -12,7 +12,7 @@
 #   5. Crée un raccourci sur le Bureau et dans le Démarrage Windows
 
 Set-StrictMode -Off
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 # ── Couleurs ──────────────────────────────────────────────────────────────────
 function Write-Gold  ($t) { Write-Host $t -ForegroundColor Yellow }
