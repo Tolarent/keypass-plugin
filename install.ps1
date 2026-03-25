@@ -126,12 +126,10 @@ Write-Host ""
 Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
-Push-Location $installDir
-cmd /c "npm install --loglevel=silent"
-$npmExit = $LASTEXITCODE
-Pop-Location
-if ($npmExit -ne 0) {
-    Write-Err "npm install a échoué (code $npmExit)"
+Write-Info "(les avertissements 'npm warn' sont normaux, ignorez-les)"
+cmd /c "cd /d `"$installDir`" && npm install"
+if ($LASTEXITCODE -ne 0) {
+    Write-Err "npm install a échoué (code $LASTEXITCODE)"
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 1
 }
