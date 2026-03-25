@@ -126,9 +126,10 @@ Write-Host ""
 Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
-npm install --loglevel=error 2>$null
-if ($LASTEXITCODE -ne 0) {
-    Write-Err "npm install a échoué (code $LASTEXITCODE)"
+$npmProc = Start-Process "npm" -ArgumentList "install","--loglevel=silent" -WorkingDirectory $installDir -Wait -PassThru -NoNewWindow -RedirectStandardError "$env:TEMP\npm-stderr.txt"
+if ($npmProc.ExitCode -ne 0) {
+    Write-Err "npm install a échoué"
+    Get-Content "$env:TEMP\npm-stderr.txt" -ErrorAction SilentlyContinue | Write-Host -ForegroundColor Red
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 1
 }
