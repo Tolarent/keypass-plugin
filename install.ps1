@@ -126,10 +126,9 @@ Write-Host ""
 Write-Host "  [3/5] Installation des dépendances npm..." -ForegroundColor White
 
 Set-Location $installDir
-$npmOutput = npm install 2>&1
+npm install --loglevel=error 2>$null
 if ($LASTEXITCODE -ne 0) {
-    Write-Err "Erreur npm install (code $LASTEXITCODE)"
-    Write-Host ($npmOutput | Where-Object { $_ -match "error" } | Out-String) -ForegroundColor Red
+    Write-Err "npm install a échoué (code $LASTEXITCODE)"
     Read-Host "Appuyez sur Entrée pour quitter"
     exit 1
 }
