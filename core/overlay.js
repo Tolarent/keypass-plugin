@@ -29,8 +29,8 @@ const POSITIONS_OVERLAY = {
 async function creerOverlay(logiciel) {
   log.info('[Overlay] Création overlay pour', logiciel.name);
 
-  // Récupérer la position de la fenêtre du logiciel hôtel
-  const fenetre = await getPositionFenetre(logiciel.exe);
+  // Récupérer la position de la fenêtre du logiciel hôtel (null si mode manuel)
+  const fenetre = logiciel.exe ? await getPositionFenetre(logiciel.exe) : null;
   const position = POSITIONS_OVERLAY[logiciel.adapter] || POSITIONS_OVERLAY.generic;
 
   // Calculer la position de l'overlay
